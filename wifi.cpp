@@ -22,6 +22,7 @@ int main()
 		system(temp.data());
 	}
 	ifs.close();
+	remove("out.txt");
 	remove("temp.txt");
 	rename("swp.txt","saved-wifi-passwords.txt");
 	return 0;
