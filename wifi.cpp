@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <fstream>
 #include <string.h>
 #include <stdexcept>
@@ -25,34 +26,42 @@ string exec(const char* cmd) {
     return result;
 }
 
-void saveProfileNames()
-{
-	system("t.cmd");
-	system("cls");
-	//save all profiles name in out.txt
+vector<string> getWifiList() {
+	stringstream ss(exec("netsh wlan show profile").data());
+	string input;
+	vector<string> wifi;
+	while(getline(ss,input))
+		if (input.find("All User Profile") != string::npos)
+			wifi.push_back(input.substr(27,input.length()));
+	return wifi;
 }
+
+string getPassword(string ssid) {
+	string command = "netsh wlan show profile \"" + ssid + "\" key=clear";
+	stringstream ss(exec(command.data()).data());
+	string input;
+	while(getline(ss,input)){
+		if (input.find("Key Content") != string::npos)
+			return input.substr(29,input.length());
+	}
+	return "< NULL >";
+}
+
 
 int main()
 {
-	saveProfileNames();
-	ifstream ifs("out.txt");
-	string data;
-	string temp;
-	vector<string> output;
-	while(getline(ifs,data))
-	{
-		temp="netsh wlan show profile \"";
-		temp+=data;
-		temp+="\" key=clear";
-		output.push_back(exec(temp.data()));
-	}
-	ifs.close();
-	remove("out.txt");
+	cout << "Getting list of known wifi networks..\n\n";
+	vector<string> wifi = getWifiList();
 
 	ofstream ofs("saved-wifi-passwords.txt");
-	for (string str: output)
-		ofs << str;
+	for (string ssid: wifi)
+	{
+		cout << "Getting password for " << ssid << "..\n";
+		ofs << "SSID\t:\t" << ssid << "\n";
+		ofs << "Key\t:\t" << getPassword(ssid) << "\n\n";
+	}
 	ofs.close();
-	
+	cout << "\nOuput saved to `saved-wifi-passwords.txt`..\n";
+
 	return 0;
 }
