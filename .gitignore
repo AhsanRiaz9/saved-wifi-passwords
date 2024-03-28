@@ -1,2 +1,4 @@
 *.exe
 *.txt
+venv
+__pycache__
