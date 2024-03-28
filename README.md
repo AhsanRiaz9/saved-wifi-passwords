@@ -19,3 +19,5 @@ wifi
 Output will be saved in a the file `saved-wifi-passwords.txt`.
 
 **Note:** It will replace the contents of output file, not append it.
+
+Linux support is also added, code is written in python. For more information, see readme.md of wifi-password-linux/ dir.
