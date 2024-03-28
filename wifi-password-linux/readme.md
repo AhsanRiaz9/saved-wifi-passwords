@@ -14,6 +14,6 @@
     pip install - requirements.txt
 
 ## Run Django Project:
-    python3 main.py
+    sudo python3 main.py
 
-Note: This wifi password code work on linux OS only.
+Note: This wifi password code work on linux OS only. You need sudo permissions to run this code.
