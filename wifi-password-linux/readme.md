@@ -11,9 +11,9 @@
     source venv/bin/activate
 
 ## Install Required packages
-    pip install - requirements.txt
+    pip install -r requirements.txt
 
 ## Run Django Project:
     sudo python3 main.py
 
-Note: This wifi password code work on linux OS only. You need sudo permissions to run this code.
+Note: This Wi-Fi password code works on Linux OS only. You need sudo permissions to run it.
