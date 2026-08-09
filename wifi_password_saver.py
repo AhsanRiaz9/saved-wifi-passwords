@@ -1,4 +1,5 @@
 import subprocess
+from unittest import result
 import pandas as pd
 import json
 import os
@@ -36,10 +37,24 @@ class WifiService:
         result = subprocess.run(
             ["netsh", "wlan", "show", "profile", profile_name, "key=clear"],
             capture_output=True,
-            text=True
+            text=True,
+            errors="replace"
         )
-        password = result.stdout.split("Key Content")[1].strip().split("Cost settings")[0][2:].strip()
-        return password   
+
+        if result.returncode != 0:
+            print(f"Unable to inspect profile: {profile_name}")
+            return ""
+
+        # Don't assume a password field exists.
+        # Treat missing/unsupported credentials as unavailable.
+        for line in result.stdout.splitlines():
+            line = line.strip()
+
+            if line.lower().startswith("key content"):
+                # Return only the field value, not subsequent sections.
+                return line.split(":", 1)[1].strip()
+
+        return ""
     
     def __fetch_profile_password_for_linux(self, profile_name):
         wifi_detail = os.popen(f'sudo cat {self.network_path}/\'{profile_name}\'').read()
@@ -82,8 +97,9 @@ if __name__ == '__main__':
     profile_names = wifi_service.fetch_profiles()
     for profile_name in profile_names:
         password = wifi_service.fetch_profile_password(profile_name)
-        profile = {'ssid': profile_name, 'password': password}
-        saved_wifi_list.append(profile)
+        if profile_name and password:
+            profile = {'ssid': profile_name, 'password': password}
+            saved_wifi_list.append(profile)
     if saved_wifi_list:    
         wifi_service.save_output(saved_wifi_list)
     else:
